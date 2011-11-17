@@ -15,9 +15,9 @@ This is the desired menu structure in that specific case:
 * Category tres
 * Blog
 * About Us
-* * About the Company
-* * The Team
-* * Terms & Conditions
+** About the Company
+** The Team
+** Terms & Conditions
 
 The problem is that the site structure totally didn't match that:
 
