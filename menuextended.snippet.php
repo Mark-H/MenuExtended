@@ -37,7 +37,6 @@ if (!in_array('context_key',$fields)) $fields[] = 'context_key';
 
 /* Templating / Display stuff */
 $rowTpl = $modx->getOption('rowTpl',$scriptProperties,'me.row');
-$parentTpl = $modx->getOption('parentTpl',$scriptProperties,$rowTpl);
 $innerTpl = $modx->getOption('innerTpl',$scriptProperties,'me.inner');
 $childTpl = $modx->getOption('childTpl',$scriptProperties,$rowTpl);
 $outerTpl = $modx->getOption('outerTpl',$scriptProperties,null);
