@@ -4,7 +4,7 @@ MenuExtended is actually a simple alternative to "Wayfinder":http://rtfm.modx.co
 
 The reason this is called MenuExtended is cause there is extended control over what is displayed in the menu. It's probably also faster than Wayfinder in a lot of cases (tho I haven't run any real tests), but it doesn't support all options Wayfinder does.
 
-It lacks multi-context support (tho it may just work.. simply haven't tested so can't promise) and the amount of configuration Wayfinder offers you.
+It lacks multi-context support (tho it may just work.. simply haven't tested so can't promise), more than one level deep nesting (at this point) and the amount of configuration Wayfinder offers you.
 
 h2. When do you need to use MenuExtended?
 
