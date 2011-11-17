@@ -4,6 +4,8 @@ MenuExtended is actually a simple alternative to "Wayfinder":http://rtfm.modx.co
 
 The reason this is called MenuExtended is cause there is extended control over what is displayed in the menu. It's probably also faster than Wayfinder in a lot of cases (tho I haven't run any real tests), but it doesn't support all options Wayfinder does.
 
+It lacks multi-context support (tho it may just work.. simply haven't tested so can't promise) and the amount of configuration Wayfinder offers you.
+
 h2. When do you need to use MenuExtended?
 
 The reason I developed it for a client was a main navigation that didn't match the resource tree. Both are proper for their contexts, but they simply don't work together and would require at least three Wayfinder/getResources calls to work properly.
@@ -53,5 +55,3 @@ The key there is the use of tokens after the resources. There's three options:
 1. No token: show this resource and all its (first-level) children. We're using this for ID 4 (About Us).
 2. An asterix (*): indicates we only want the parent, in this case that's for the blog (ID 3).
 3. A + sign: indicates we only want the children, we're using that for the shop categories (parent ID 2).
-
-It does lack extended support for contexts, menus nested more than one level deep, twenty-bazillion configuration properties and processor intensive scripting.
