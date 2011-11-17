@@ -44,4 +44,14 @@ Good luck with that, Wayfinder!
 
 So that's what MenuExtended does - it allows you to specify exactly what to include: the parent you specify, just its children or both.
 
-It does lack extended support for contexts, twenty-bazillion configuration properties and processor intensive scripting.
+Here's how I did it using my custom menu snippet:
+
+    [[MenuExtended? &resources=`2+,3*,4`]]
+
+The key there is the use of tokens after the resources. There's three options:
+
+1. No token: show this resource and all its (first-level) children. We're using this for ID 4 (About Us).
+2. An asterix (*): indicates we only want the parent, in this case that's for the blog (ID 3).
+3. A + sign: indicates we only want the children, we're using that for the shop categories (parent ID 2).
+
+It does lack extended support for contexts, menus nested more than one level deep, twenty-bazillion configuration properties and processor intensive scripting.
