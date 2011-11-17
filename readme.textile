@@ -23,16 +23,16 @@ The problem is that the site structure totally didn't match that:
 
 * Home
 * Shop (ID 2)
-* * Shop Category 1
-* * Another shop Category
-* * Category tres
+** Shop Category 1
+** Another shop Category
+** Category tres
 * Blog (ID 3)
-* * 2011 (auto generated)
-* * 2010 (auto generated)
+** 2011 (auto generated)
+** 2010 (auto generated)
 * About Us (ID 4)
-* * About the Company
-* * The Team
-* * Terms & Conditions
+** About the Company
+** The Team
+** Terms & Conditions
 
 So we would need to show:
 
