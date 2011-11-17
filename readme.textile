@@ -1,0 +1,47 @@
+h2. What is MenuExtended?
+
+MenuExtended is actually a simple alternative to "Wayfinder":http://rtfm.modx.com/display/ADDON/Wayfinder, the main menu builder every MODX Developer has worked with.
+
+The reason this is called MenuExtended is cause there is extended control over what is displayed in the menu. It's probably also faster than Wayfinder in a lot of cases (tho I haven't run any real tests).
+
+h2. When do you need to use MenuExtended?
+
+The reason I developed it for a client was a main navigation that didn't match the resource tree. Both are proper for their contexts, but they simply don't work together and would require at least three Wayfinder/getResources calls to work properly.
+
+This is the desired menu structure in that specific case:
+
+* Shop Category 1
+* Another shop Category
+* Category tres
+* Blog
+* About Us
+* * About the Company
+* * The Team
+* * Terms & Conditions
+
+The problem is that the site structure totally didn't match that:
+
+* Home
+* Shop (ID 2)
+* * Shop Category 1
+* * Another shop Category
+* * Category tres
+* Blog (ID 3)
+* * 2011 (auto generated)
+* * 2010 (auto generated)
+* About Us (ID 4)
+* * About the Company
+* * The Team
+* * Terms & Conditions
+
+So we would need to show:
+
+1. The children of the Shop (ID 2) as level 1 items.
+2. The "Blog" (ID 3) container - but not the children.
+3. The "About Us" (ID 4) container and its children.
+
+Good luck with that, Wayfinder!
+
+So that's what MenuExtended does - it allows you to specify exactly what to include: the parent you specify, just its children or both.
+
+It does lack extended support for contexts, twenty-bazillion configuration properties and processor intensive scripting.
