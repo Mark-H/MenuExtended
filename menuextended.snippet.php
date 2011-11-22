@@ -58,6 +58,7 @@ $debug = intval($modx->getOption('debug',$scriptProperties,false));
 $ids = array();
 $map = array();
 $revMap = array();
+$forceIds = array();
 $resRaw = explode(',',$resources);
 foreach ($resRaw as $resItem) {
     switch (substr($resItem,-1)) {
@@ -72,6 +73,7 @@ foreach ($resRaw as $resItem) {
         case '*': /* Parent only */
             $map[(int)substr($resItem,0,-1)] = array();
             $ids[] = (int)substr($resItem,0,-1);
+            $forceIds[] = (int)substr($resItem,0,-1);
             break;
 
         default: /* Parent + children */
@@ -84,6 +86,7 @@ foreach ($resRaw as $resItem) {
             }
             $map[(int)$resItem] = $secMap;
             $ids[] = (int)$resItem;
+            $forceIds[] = (int)$resItem;
             break;
     }
 }
@@ -94,7 +97,7 @@ if ($debug) { echo '<p><strong>Resource ID Map</strong></p><pre>'.print_r($map,t
 $c = $modx->newQuery('modResource');
 $c->select($fields);
 if ($hideUnpub) $c->where(array('published' => true));
-if ($hideHidden) $c->where(array('hidemenu' => false));
+if ($hideHidden) $c->where(array('hidemenu' => false, 'OR:id:IN' => $forceIds));
 if ($hideDeleted) $c->where(array('deleted' => false));
 /* Only get the resources we want */
 $c->where(array('id:IN' => $ids));
