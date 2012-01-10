@@ -139,6 +139,7 @@ foreach ($map as $id => $children) {
             if (isset($results[$childId])) {
                 $phs = $results[$childId];
                 /* See if we need to add any classes */
+                $phs['class'] = array();
                 if ($cidx == 1) $phs['class'][] = $classFirst;
                 if (count($children) == $cidx) $phs['class'][] = $classLast;
                 if (in_array($childId,$active)) $phs['class'][] = $classActive;
@@ -162,6 +163,7 @@ foreach ($map as $id => $children) {
         /* Add a wrapper for any child resources */
         $phs['wrapper'] = $wrapper;
         /* Add some classes if needed */
+        $phs['class'] = array();
         if ($idx == 1) $phs['class'][] = $classFirst;
         if (count($map) == $idx) $phs['class'][] = $classLast;
         if (in_array($id,$active)) $phs['class'][] = $classActive;
