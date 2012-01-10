@@ -59,12 +59,12 @@ The key there is the use of tokens after the resources. There's three options:
 h2. Properties
 
 * &resources: comma separated list of resources/parents, optionally with a token (see above example) to denote how to treat it. (2,3,4*)
-* &depth: depth to look up resources. **MenuExtended only supports ONE level right now. You can increase the depth but it'll do nothing** (1)
+* &depth: depth to look up resources. **MenuExtended only supports TWO levels (parent, child) right now. You can increase the depth but it'll do nothing** (1)
 * &hideUnpublished: [1|0] to hide unpublished resources from the output (1)
 * &hideHidden: [1|0] to hide resources (marked as hidden from menu) from the output (0)
 * &hideDeleted: [1|0] to hide deleted resources from the output (1)
 * &fields: comma separated list of fields to include in the output. Resource fields ONLY. Default: id,context_key,pagetitle,menutitle,longtitle
-* &rowTpl: chunkname to use as row tpl. Include placeholders like [[+pagetitle]] and [[~[[+id]]]]. Use [[+wrapper]] for subresources.
+* &rowTpl: chunkname to use as row tpl. Include placeholders like @[[+pagetitle]]@ and @[[~[[+id]]]]@. Use @[[+wrapper]]@ for subresources.
 * &innerTpl: chunk to use as inner tpl. Use [[+wrapper]] placeholder.
 * &childTpl: optional chunk to use instead of the rowTpl when we're dealing with a subresource.
 * &outerTpl: optional outer chunk. Use [[+wrapper]] again.
