@@ -110,6 +110,7 @@ $collection = $modx->getCollection('modResource',$c);
 
 /* Put all resources' values into one array, for output with chunks later */
 $results = array();
+/* @var modResource $res */
 foreach ($collection as $res) {
     $ta = $res->toArray('',false,true); $id = $ta['id'];
     $results[$id] = $ta;

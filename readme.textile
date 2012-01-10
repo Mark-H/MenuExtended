@@ -55,3 +55,22 @@ The key there is the use of tokens after the resources. There's three options:
 1. No token: show this resource and all its (first-level) children. We're using this for ID 4 (About Us).
 2. An asterix (*): indicates we only want the parent, in this case that's for the blog (ID 3).
 3. A + sign: indicates we only want the children, we're using that for the shop categories (parent ID 2).
+
+h2. Properties
+
+* &resources: comma separated list of resources/parents, optionally with a token (see above example) to denote how to treat it. (2,3,4*)
+* &depth: depth to look up resources. **MenuExtended only supports ONE level right now. You can increase the depth but it'll do nothing** (1)
+* &hideUnpublished: [1|0] to hide unpublished resources from the output (1)
+* &hideHidden: [1|0] to hide resources (marked as hidden from menu) from the output (0)
+* &hideDeleted: [1|0] to hide deleted resources from the output (1)
+* &fields: comma separated list of fields to include in the output. Resource fields ONLY. Default: id,context_key,pagetitle,menutitle,longtitle
+* &rowTpl: chunkname to use as row tpl. Include placeholders like [[+pagetitle]] and [[~[[+id]]]]. Use [[+wrapper]] for subresources.
+* &innerTpl: chunk to use as inner tpl. Use [[+wrapper]] placeholder.
+* &childTpl: optional chunk to use instead of the rowTpl when we're dealing with a subresource.
+* &outerTpl: optional outer chunk. Use [[+wrapper]] again.
+* &childSeparator: string used to separate child resources. Defaults to a linebreak.
+* &rowSeparator: string used to separate rowTpls. Defaults to a linebreak.
+* &classLast: class to use for last item. Defaults to "last".
+* &classActive: class to use for active item. Defaults to "active".
+* &classFirst: class to use for first item. Defaults to "first"
+* &debug: [1|0] enable debug messages. Defaults to 0.
