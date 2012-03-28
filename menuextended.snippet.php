@@ -147,7 +147,7 @@ foreach ($map as $id => $children) {
                 $phs['class'] = implode(' ',$phs['class']);
                 $phs['idx'] = $cidx;
                 $phs['parentidx'] = $idx;
-                $childOutput[] = $modx->getChunk($childTpl,$results[$childId]);
+                $childOutput[] = $modx->getChunk($childTpl,$phs);
             }
         }
 
