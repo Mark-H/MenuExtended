@@ -2,7 +2,7 @@
 /**
  * MenuExtended
  *
- * Copyright 2011 by Mark Hamstra <hello@markhamstra.com>
+ * Copyright 2011-2012 by Mark Hamstra <hello@markhamstra.com>
  *
  * This file is part of MenuExtended, a menu building snippet for MODX Revolution.
  *
@@ -16,7 +16,7 @@
  * A PARTICULAR PURPOSE. See the GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License along with
- * bdListings; if not, write to the Free Software Foundation, Inc., 59 Temple Place,
+ * MenuExtended; if not, write to the Free Software Foundation, Inc., 59 Temple Place,
  * Suite 330, Boston, MA 02111-1307 USA
  *
 */
@@ -48,7 +48,7 @@ $classActive = $modx->getOption('classActive',$scriptProperties,'active');
 $classFirst = $modx->getOption('classFirst',$scriptProperties,'first');
 
 /* When debug is enabled, we will dump some more info on screen to help figure out what goes wrong */
-$debug = intval($modx->getOption('debug',$scriptProperties,false));
+$debug = (bool)$modx->getOption('debug',$scriptProperties,false);
 
 /* Generate arrays with:
  * - all IDs (used in the SQL statement)
