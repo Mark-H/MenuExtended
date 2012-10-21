@@ -1,5 +1,7 @@
 h2. What is MenuExtended?
 
+*MenuExtended is undergoing major refactoring; the below may not entirely be true as I haven't updated that yet!*
+
 MenuExtended is actually a simple alternative to "Wayfinder":http://rtfm.modx.com/display/ADDON/Wayfinder, the main menu builder every MODX Developer has worked with.
 
 The reason this is called MenuExtended is cause there is extended control over what is displayed in the menu. It's probably also faster than Wayfinder in a lot of cases (tho I haven't run any real tests), but it doesn't support all options Wayfinder does.
