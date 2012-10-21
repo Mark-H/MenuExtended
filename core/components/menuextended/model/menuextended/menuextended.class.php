@@ -46,9 +46,9 @@ class MenuExtended {
 
         'rowTpl' => 'menuExtendedRow',
         'innerTpl' => 'menuExtendedInner',
-        'childTpl' => 'menuExtendedChild',
+        'childTpl' => 'menuExtendedRow',
         'outerTpl' => 'menuExtendedOuter',
-        'itemSeparator' => "\n",
+        'rowSeparator' => "\n",
         'childSeparator' => "\n",
 
         'classFirst' => 'first',
@@ -114,11 +114,11 @@ class MenuExtended {
         $this->_getResourceIDs();
         $this->_getResources();
 
-        if ($this->debug) {
-            var_dump($this->resourceMap);
-            echo $this->modx->toJSON($this->resourceIDs);
-            var_dump($this->debugData);
-        }
+        $timing = microtime(true);
+        $result = $this->_buildMenu($this->resourceMap);
+        $this->debug('parsing','Parsing data into templates',array(), $timing);
+        return $result;
+
     }
 
     public function debug($key, $description, array $data = array(), $start = 0) {
@@ -301,6 +301,24 @@ class MenuExtended {
         $this->debug('resources','Retrieved resources from the database.', array('sql' => $sql, 'data' => $this->resources), $timing);
     }
 
+    private function _buildMenu($map, $level = 1) {
+        $output = array();
+        foreach ($map as $id => $children) {
+            $phs = $this->resources[$id];
+            if (is_array($children)) {
+                $childOutput = $this->_buildMenu($children, $level + 1);
+                $phs['children'] = $childOutput;
+            }
+            $tpl = ($level <= 1) ? $this->getOption('rowTpl') : $this->getOption('childTpl');
+            $output[] = $this->getChunk($tpl, $phs);
+        }
+        $wrapTpl = ($level <= 1) ? $this->getOption('outerTpl') : $this->getOption('innerTpl');
+        $separator = ($level <= 1) ? $this->getOption('rowSeparator') : $this->getOption('childSeparator');
+        $output = implode($separator, $output);
+        $output = $this->getChunk($wrapTpl, array('output' => $output, 'level' => $level));
+        return $output;
+    }
+
     /**
      * Recursively gets all the unique IDs from the resource map generated.
      * @param array $resourceMap
@@ -355,7 +373,7 @@ class MenuExtended {
     */
     private function _getTplChunk($name,$postFix = '.chunk.tpl') {
         $chunk = false;
-        $f = $this->config['elements_path'].'chunks/'.strtolower($name).$postFix;
+        $f = $this->config['elementsPath'].'chunks/'.strtolower($name).$postFix;
         if (file_exists($f)) {
             $o = file_get_contents($f);
             /* @var modChunk $chunk */

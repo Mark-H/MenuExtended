@@ -42,10 +42,11 @@ $me->setOptions($scriptProperties);
 /**
  * Fire it up!
  */
-$me->process();
+$result = $me->process();
 
+var_dump($me->debugData);
 
-return;
+return $result;
 /* Get current resources' parents for active class */
 $active = $modx->getParentIDs($modx->resource->get('id'));
 $active[$modx->resource->get('id')] = $modx->resource->get('id');
