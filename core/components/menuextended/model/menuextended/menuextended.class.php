@@ -80,6 +80,10 @@ class MenuExtended {
      * @var bool $resourceIDs Contains a flat array with every ID to collect for the menu.
      */
     public $resourceIDs = array();
+    /**
+     * @var bool $resources Contains all resources.
+     */
+    public $resources = array();
 
     /**
      * @param \modX $modx
@@ -108,6 +112,7 @@ class MenuExtended {
 
     public function process() {
         $this->_getResourceIDs();
+        $this->_getResources();
 
         if ($this->debug) {
             var_dump($this->resourceMap);
@@ -156,7 +161,7 @@ class MenuExtended {
         $timing = microtime(true);
 
         $resourceMap = array();
-        $cacheKey = 'menuextended/'.md5(serialize($this->options));
+        $cacheKey = 'menuextended/maps/'.md5(serialize($this->options));
         if ($this->getOption('cacheMap', true)) {
             $cache = $this->modx->cacheManager->get($cacheKey);
             if (!empty($cache) && !empty($cache['map']) && !empty($cache['ids'])) {
@@ -246,6 +251,54 @@ class MenuExtended {
         }
 
         $this->debug('resourceids','Retrieved resource IDs and map.', $resourceMap, $timing);
+    }
+
+    private function _getResources() {
+        /* Get the start time for debugging */
+        $timing = microtime(true);
+
+        /* Build out the query to get our resources */
+        $c = $this->modx->newQuery('modResource');
+        $c->where(array(
+            'id:IN' => $this->resourceIDs,
+        ));
+        /* Adjust query based on options */
+        if ($this->getOption('hideUnpublished')) $c->andCondition(array('published' => true));
+        if ($this->getOption('hideHidden')) $c->andCondition(array('hidemenu' => false));
+        if ($this->getOption('hideDeleted')) $c->andCondition(array('deleted' => false));
+
+        /* Select only specific fields but don't limit result set */
+        $c->select($this->modx->getSelectColumns('modResource','modResource','',$this->getOption('fields')));
+        $c->limit(0);
+
+        /* Get the total and the sql used for debugging */
+        $total = $this->modx->getCount('modResource', $c);
+        $c->construct();
+        $sql = $c->toSQL();
+
+        /* Check the cache for this specific query */
+        $cacheKey = 'menuextended/resources/'.md5($total.$sql);
+        if ($this->getOption('cacheResources', true)) {
+            $cache = $this->modx->cacheManager->get($cacheKey);
+            if (!empty($cache) && count($cache) == $total) {
+                $this->resources = $cache;
+                $this->debug('resources','Retrieved resources from cache.', $cache, $timing);
+                return;
+            }
+        }
+
+        /* Loop over each resource result to add it to an array */
+        foreach ($this->modx->getIterator('modResource', $c) as $resource) {
+            /* @var modResource $resource */
+            $rArray = $resource->toArray('', false, true);
+            $this->resources[$rArray['id']] = $rArray;
+        }
+
+        /* Write stuff to the cache. */
+        if ($this->getOption('cacheResources', true)) {
+            $this->modx->cacheManager->set($cacheKey, $this->resources);
+        }
+        $this->debug('resources','Retrieved resources from the database.', array('sql' => $sql, 'data' => $this->resources), $timing);
     }
 
     /**
@@ -350,6 +403,7 @@ class MenuExtended {
         $fields = array_map('trim',explode(',',$options['fields']));
         if (!in_array('id', $fields)) $fields[] = 'id';
         if (!in_array('context_key', $fields)) $fields[] = 'context_key';
+        if (!in_array('menuindex', $fields)) $fields[] = 'menuindex';
         $options['fields'] = $fields;
 
         /* Set options to the internal array. */
