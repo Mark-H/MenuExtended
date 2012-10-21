@@ -36,7 +36,7 @@ class MenuExtended {
      */
     public $defaultOptions = array(
         'fields' => 'id,context_key,pagetitle,menutitle,longtitle',
-        'resources' => '',
+        'resources' => '0',
         'depth' => 10,
         'debug' => false,
 
@@ -68,6 +68,18 @@ class MenuExtended {
      * @var bool $debug If enabled, we'll collect and dump debug info.
      */
     public $debug = false;
+    /**
+     * @var bool $debugData Contains debug information.
+     */
+    public $debugData = array();
+    /**
+     * @var bool $resourceMap Contains a multi dimensional array representing the menu.
+     */
+    public $resourceMap = array();
+    /**
+     * @var bool $resourceIDs Contains a flat array with every ID to collect for the menu.
+     */
+    public $resourceIDs = array();
 
     /**
      * @param \modX $modx
@@ -92,6 +104,163 @@ class MenuExtended {
             'assetsUrl' => $assetsUrl,
             'connectorUrl' => $assetsUrl.'connector.php',
         ),$config);
+    }
+
+    public function process() {
+        $this->_getResourceIDs();
+
+        if ($this->debug) {
+            var_dump($this->resourceMap);
+            echo $this->modx->toJSON($this->resourceIDs);
+            var_dump($this->debugData);
+        }
+    }
+
+    public function debug($key, $description, array $data = array(), $start = 0) {
+        if (!$this->debug) return;
+
+        $logtime = microtime(true);
+        $this->debugData[$key] = array(
+            'logtime' => $logtime,
+            'description' => $description,
+            'data' => $data,
+        );
+        if ($start > 0) {
+            $this->debugData[$key]['starttime'] = $start;
+            $this->debugData[$key]['runtime'] = $logtime - $start;
+        }
+    }
+
+    /**
+     * Individual attributes in the &resources property can define:
+     * - get the children of this resource ID           (no token; default)
+     * - get this resource ID                           (+ sign in front of the ID)
+     * - get this resource ID and its children          (+ sign after the ID)
+     * - get the root of this context and its children  (name of context)
+     *
+     * &resources=`web,+6,7,8,8+`
+     *                        ^ get 8 and its children
+     *                      ^ get children of 8
+     *                    ^ get children of 7
+     *                 ^ get resource 6 itself
+     *             ^ get all resources in "web"
+     *
+     * &resources=`6`
+     *             ^ get all children of 6
+     *
+     * &resources=`other_context`
+     *             ^ get all resources in other_context
+     */
+    private function _getResourceIDs() {
+        /* Time when we started for debugging */
+        $timing = microtime(true);
+
+        $resourceMap = array();
+        $cacheKey = 'menuextended/'.md5(serialize($this->options));
+        if ($this->getOption('cacheMap', true)) {
+            $cache = $this->modx->cacheManager->get($cacheKey);
+            if (!empty($cache) && !empty($cache['map']) && !empty($cache['ids'])) {
+                $this->resourceMap = $cache['map'];
+                $this->resourceIDs = $cache['ids'];
+                $this->debug('resourceids','Retrieved Resource IDs from cache', $cache, $timing);
+                return;
+            }
+        }
+
+        $depth = $this->getOption('depth', 10, true);
+        $resources = explode(',',$this->getOption('resources'));
+        if (empty($resources)) $resources = array('0');
+
+        foreach ($resources as $declaration) {
+            /**
+             * If the declaration is a + sign, followed by a number
+             * bigger than 0, we include the resource itself as root.
+             */
+            if ( (substr($declaration, 0, 1) == '+') &&
+                is_numeric(substr($declaration,1)) &&
+                ((int)substr($declaration,1) > 0) ) {
+                $resourceMap[(int)substr($declaration, 1)] = array();
+            }
+            /**
+             * If the declaration is a number bigger than 0,
+             * followed by + sign, we include the resource itself as root and
+             * its children below that.
+             */
+            elseif ( (substr($declaration, -1) == '+') &&
+                is_numeric(substr($declaration, 0, -1)) &&
+                ((int)substr($declaration, 0, -1) > 0) ) {
+                $rootParent = (int)substr($declaration, 0, -1);
+                $resourceMap[$rootParent] = $this->modx->getTree($rootParent, $depth--);
+            }
+            /**
+             * If the declaration is a number (no token) and equal to 0,
+             * we do 2 things: get the root parents to add as roots to the map
+             * and get their children.
+             */
+            elseif (is_numeric($declaration) && $declaration == 0) {
+                $rootParents = $this->modx->getChildIds(0, 1, array(
+                    'context' => $this->modx->context->get('key'),
+                ));
+                foreach ($rootParents as $rootParent) {
+                    $resourceMap[$rootParent] = $this->modx->getTree($rootParent, $depth--);
+                }
+            }
+
+            /**
+             * If the declaration is a number larger than 0, we get their children
+             * and add them as roots to the map.
+             */
+            elseif (is_numeric($declaration) && $declaration > 0) {
+                $children = $this->modx->getTree($declaration, $depth);
+                foreach ($children as $child => $childChildren) {
+                    $resourceMap[$child] = $childChildren;
+                }
+            }
+
+            /**
+             * If no other options apply, we might have a context key.
+             * Test if a context exists with this key, and if so, get all its children.
+             * If it's not a context.. well idk what it is then. Probably a case of PEBCAK.
+             */
+            else {
+                $ctx = $this->modx->getObject('modContext',array('key' => $declaration));
+                if ($ctx instanceof modContext) {
+                    $rootParents = $this->modx->getChildIds(0, 1, array(
+                        'context' => $declaration,
+                    ));
+                    foreach ($rootParents as $rootParent) {
+                        $resourceMap[$rootParent] = $this->modx->getTree($rootParent, $depth--);
+                    }
+                }
+            }
+        }
+        $this->resourceMap = $resourceMap;
+        $this->resourceIDs = $this->_getIdsFromMap($resourceMap);
+
+        if ($this->getOption('cacheMap', true)) {
+            $cache = array(
+                'map' => $this->resourceMap,
+                'ids' => $this->resourceIDs,
+            );
+            $this->modx->cacheManager->set($cacheKey, $cache);
+        }
+
+        $this->debug('resourceids','Retrieved resource IDs and map.', $resourceMap, $timing);
+    }
+
+    /**
+     * Recursively gets all the unique IDs from the resource map generated.
+     * @param array $resourceMap
+     * @return array
+     */
+    private function _getIdsFromMap(array $resourceMap = array()) {
+        $keys = array_keys($resourceMap);
+        foreach ($resourceMap as $children) {
+            if (is_array($children)) {
+                $keys = array_merge($keys, $this->_getIdsFromMap($children));
+            }
+        }
+        return array_unique($keys);
     }
 
     /**
@@ -171,26 +340,22 @@ class MenuExtended {
      * @param array $options
      */
     public function setOptions($options) {
+        /* Get the defaults and overwrite with what was given */
         $options = array_merge($this->defaultOptions, $options);
-        /**
-         * Set internal debug flag
-         */
+
+        /* Set the boolean flag */
         $this->debug = (bool)$options['debug'];
-        /**
-         * Parse the &fields option.
-         */
+
+        /* Parse the &fields property */
         $fields = array_map('trim',explode(',',$options['fields']));
         if (!in_array('id', $fields)) $fields[] = 'id';
         if (!in_array('context_key', $fields)) $fields[] = 'context_key';
         $options['fields'] = $fields;
-        /**
-         * Parse
-         */
 
-
+        /* Set options to the internal array. */
         $this->options = $options;
-        var_dump($this->options);
-    }
 
+        $this->debug('options', 'Parsed snippet properties.', $options);
+    }
 }
 

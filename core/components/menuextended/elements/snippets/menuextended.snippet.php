@@ -39,46 +39,10 @@ if (!($me instanceof MenuExtended)) {
  */
 $me->setOptions($scriptProperties);
 
-/* Generate arrays with:
- * - all IDs (used in the SQL statement)
- * - a multi-dimensional map of IDs to use in the actual outputting of data later on.
- * - a reverse map which links resource IDs to their parent
-*/
-$ids = array();
-$map = array();
-$revMap = array();
-$forceIds = array();
-$resRaw = explode(',',$resources);
-foreach ($resRaw as $resItem) {
-    switch (substr($resItem,-1)) {
-        case '+': /* Sub resources only */
-            $itemChildren = $modx->getChildIDs((int)substr($resItem,0,-1),$depth);
-            foreach ($itemChildren as $iC) {
-                $map[$iC] = array();
-                $ids[] = (int)$iC;
-            }
-            break;
+$me->process();
 
-        case '*': /* Parent only */
-            $map[(int)substr($resItem,0,-1)] = array();
-            $ids[] = (int)substr($resItem,0,-1);
-            $forceIds[] = (int)substr($resItem,0,-1);
-            break;
 
-        default: /* Parent + children */
-            $itemChildren = $modx->getChildIDs($resItem,$depth);
-            $secMap = array();
-            foreach ($itemChildren as $iC) {
-                $secMap[$iC] = array();
-                $ids[] = (int)$iC;
-                $revMap[$iC] = (int)$resItem;
-            }
-            $map[(int)$resItem] = $secMap;
-            $ids[] = (int)$resItem;
-            $forceIds[] = (int)$resItem;
-            break;
-    }
-}
+return;
 /* Output the map if debug is enabled */
 if ($debug) { echo '<p><strong>Resource ID Map</strong></p><pre>'.print_r($map,true).'</pre>'; }
 
