@@ -32,9 +32,42 @@ class MenuExtended {
      */
     public $config = array();
     /**
+     * @var array $defaultOptions Contains default options.
+     */
+    public $defaultOptions = array(
+        'fields' => 'id,context_key,pagetitle,menutitle,longtitle',
+        'resources' => '',
+        'depth' => 10,
+        'debug' => false,
+
+        'hideUnpublished' => true,
+        'hideHidden' => false,
+        'hideDeleted' => true,
+
+        'rowTpl' => 'menuExtendedRow',
+        'innerTpl' => 'menuExtendedInner',
+        'childTpl' => 'menuExtendedChild',
+        'outerTpl' => 'menuExtendedOuter',
+        'itemSeparator' => "\n",
+        'childSeparator' => "\n",
+
+        'classFirst' => 'first',
+        'classActive' => 'active',
+        'classLast' => 'last',
+        'classParent' => 'parent',
+    );
+    /**
+     * @var array $options Contains properties for the current snippet instance.
+     */
+    public $options = array();
+    /**
      * @var array $chunks Array containing cache of chunk contents.
      */
     private $chunks = array();
+    /**
+     * @var bool $debug If enabled, we'll collect and dump debug info.
+     */
+    public $debug = false;
 
     /**
      * @param \modX $modx
@@ -109,6 +142,54 @@ class MenuExtended {
             $chunk->setContent($o);
         }
         return $chunk;
+    }
+
+    /**
+     * @return array
+     */
+    public function getOptions() {
+        return $this->options;
+    }
+
+    /**
+     * @param string $key
+     * @param mixed $default
+     * @param bool $strict
+     *
+     * @return mixed
+     */
+    public function getOption($key, $default = null, $strict = false) {
+        $value = $default;
+        if (isset($this->options[$key]) && (!empty($this->options[$key]) || !$strict)){
+            $value = $this->options[$key];
+        }
+        return $value;
+    }
+
+    /**
+     * Parse options and set defaults.
+     * @param array $options
+     */
+    public function setOptions($options) {
+        $options = array_merge($this->defaultOptions, $options);
+        /**
+         * Set internal debug flag
+         */
+        $this->debug = (bool)$options['debug'];
+        /**
+         * Parse the &fields option.
+         */
+        $fields = array_map('trim',explode(',',$options['fields']));
+        if (!in_array('id', $fields)) $fields[] = 'id';
+        if (!in_array('context_key', $fields)) $fields[] = 'context_key';
+        $options['fields'] = $fields;
+        /**
+         * Parse
+         */
+
+
+        $this->options = $options;
+        var_dump($this->options);
     }
 
 }

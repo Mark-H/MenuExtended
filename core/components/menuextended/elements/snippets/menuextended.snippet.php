@@ -24,31 +24,20 @@
  * @var array $scriptProperties
  */
 
-/* Set up some properties to begin with */
-$resources = $modx->getOption('resources',$scriptProperties,'2,3,4*');
-$depth = $modx->getOption('depth',$scriptProperties,1);
-$hideUnpub = $modx->getOption('hideUnpublished',$scriptProperties,true);
-$hideHidden = $modx->getOption('hideHidden',$scriptProperties,false);
-$hideDeleted = $modx->getOption('hideDeleted',$scriptProperties,true);
-$fields = $modx->getOption('fields',$scriptProperties,'id,context_key,pagetitle,menutitle,longtitle');
-$fields = explode(',',$fields);
-if (!in_array('id',$fields)) $fields[] = 'id';
-if (!in_array('context_key',$fields)) $fields[] = 'context_key';
-
-/* Templating / Display stuff */
-$rowTpl = $modx->getOption('rowTpl',$scriptProperties,'me.row');
-$innerTpl = $modx->getOption('innerTpl',$scriptProperties,'me.inner');
-$childTpl = $modx->getOption('childTpl',$scriptProperties,$rowTpl);
-$outerTpl = $modx->getOption('outerTpl',$scriptProperties,null);
-$childSeparator = $modx->getOption('childSeparator',$scriptProperties,"\n");
-$rowSeparator = $modx->getOption('rowSeparator',$scriptProperties,"\n");
-
-$classLast = $modx->getOption('classLast',$scriptProperties,'last');
-$classActive = $modx->getOption('classActive',$scriptProperties,'active');
-$classFirst = $modx->getOption('classFirst',$scriptProperties,'first');
-
-/* When debug is enabled, we will dump some more info on screen to help figure out what goes wrong */
-$debug = (bool)$modx->getOption('debug',$scriptProperties,false);
+/**
+ * Get the MenuExtended class to help us out. Cancel execution if can't be loaded.
+ */
+$corePath = $modx->getOption('menuextended.core_path', null, $modx->getOption('core_path') . 'components/menuextended/');
+$me = $modx->getService('MenuExtended', 'MenuExtended', $corePath . 'model/menuextended/');
+if (!($me instanceof MenuExtended)) {
+    $modx->log(modX::LOG_LEVEL_ERROR,'Unable to load MenuExtended class','','',__FILE__,__LINE__);
+    return '';
+}
+/**
+ * Get the scriptProperties, and assign them to the class.
+ * Default values and specific property parsing is done in there.
+ */
+$me->setOptions($scriptProperties);
 
 /* Generate arrays with:
  * - all IDs (used in the SQL statement)
